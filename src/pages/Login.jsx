@@ -1,12 +1,42 @@
+import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
-
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+ 
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password });
+    // console.log("Login attempt:", { email, password });
+    const user = {
+      email,
+      password
+    }
+     
+    setLoading(true);
+    try {
+      const res = await axios.post(`${baseUrl}/api/v1/user/login`, user, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      });
+      toast.success(res.data.message);
+      navigate("/");
+
+       
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+      console.log(error?.response?.data?.message, "set");
+    } finally {
+      setLoading(false); // stop loading
+
+    }
   };
 
   return (
@@ -47,7 +77,7 @@ export default function Login() {
             className="w-full py-2 px-4 rounded-lg font-medium text-white shadow-md"
             style={{ background: "linear-gradient(to right,#9f7119,#f3e39c)" }}
           >
-            Login
+            { loading ? "Loading" : "Login" }
           </button>
         </form>
 
