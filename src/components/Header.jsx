@@ -1,12 +1,33 @@
 import { FiBell } from "react-icons/fi";
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const navigate = useNavigate();
 
-  // Click outside close handler
+  const logoutHandler = async () => {
+    try {
+      const res = await axios.post(`${baseUrl}/api/v1/user/logout`);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      
+      window.dispatchEvent(new Event("storage"));
+
+      navigate("/login", { replace: true });
+      toast.success(res.data.message);
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -41,9 +62,12 @@ export default function Header() {
             <Link to="/profile" className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Profile
             </Link >
-            <Link to="/login" className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+            <button
+
+              onClick={logoutHandler}
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Logout
-            </Link >
+            </button>
           </div>
         )}
       </div>

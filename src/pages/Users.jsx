@@ -1,4 +1,5 @@
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { FiEye, FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
@@ -19,7 +20,7 @@ const dummyUsers = [
 ];
 
 export default function Users() {
-    const [users, setUsers] = useState(dummyUsers);
+    const [users, setUsers] = useState([]);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(5);
@@ -27,19 +28,34 @@ export default function Users() {
     // Filter
     const filtered = users.filter(
         (u) =>
-            u.name.toLowerCase().includes(search.toLowerCase()) ||
+            u.first_name.toLowerCase().includes(search.toLowerCase()) ||
             u.email.toLowerCase().includes(search.toLowerCase()) ||
-            u.id.toLowerCase().includes(search.toLowerCase())
+            u._id.toLowerCase().includes(search.toLowerCase())
     );
 
     // Pagination
     const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
     const start = (page - 1) * perPage;
     const visible = filtered.slice(start, start + perPage);
- 
+
     const updateStatus = (id, status) => {
-        setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
+        setUsers((prev) => prev.map((u) => (u._id === id ? { ...u, status } : u)));
     };
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+    const fetchOtherUsers = async () => {
+        try {
+            axios.defaults.withCredentials = true;
+            const res = await axios.get(`${baseUrl}/api/v1/user/`);
+
+            // console.log(res.data, "Users")
+            setUsers(res?.data)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+       fetchOtherUsers()
+    }, []);
 
     return (
         <div className="p-6">
@@ -144,16 +160,16 @@ export default function Users() {
                                 </tr>
                             ) : (
                                 visible.map((u, i) => (
-                                    <tr key={u.id} className="border-t hover:bg-gray-50">
+                                    <tr key={u._id} className="border-t hover:bg-gray-50">
                                         <td className="px-4 py-3 text-sm">{start + i + 1}</td>
-                                        <td className="px-4 py-3 text-sm">{u.name}</td>
+                                        <td className="px-4 py-3 text-sm">{u.first_name}</td>
                                         <td className="px-4 py-3 text-sm text-gray-600">{u.email}</td>
-                                        <td className="px-4 py-3 text-sm">{u.date}</td>
+                                        <td className="px-4 py-3 text-sm">{u.dateOfBirth}</td>
                                         <td className="px-4 py-3 text-sm">
                                             <select
                                                 value={u.status}
-                                                onChange={(e) => updateStatus(u.id, e.target.value)}
-                                                className={`px-2 py-1 rounded border text-sm ${u.status === "Active" ? "text-green-700 bg-green-50" : "text-red-700 bg-red-50"
+                                                onChange={(e) => updateStatus(u._id, e.target.value)}
+                                                className={`px-2 py-1 rounded border text-sm ${u.status === "Active" ? "text-red-700 bg-red-50" : "text-green-700 bg-green-50"
                                                     }`}
                                             >
                                                 <option>Active</option>
@@ -162,12 +178,12 @@ export default function Users() {
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <Link
-                                                to={`/users/${u.id}`}
+                                                to={`/users/${u._id}`}
                                                 title="View user"
                                                 className="inline-flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100"
                                             >
                                                 <FiEye />
-                                                
+
                                             </Link>
                                         </td>
                                     </tr>

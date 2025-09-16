@@ -9,15 +9,15 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASE_URL;
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log("Login attempt:", { email, password });
+
     const user = {
       email,
       password
     }
-     
+
     setLoading(true);
     try {
       const res = await axios.post(`${baseUrl}/api/v1/user/login`, user, {
@@ -26,10 +26,16 @@ export default function Login() {
         },
         withCredentials: true
       });
-      toast.success(res.data.message);
-      navigate("/");
+      toast.success(res?.data?.message);
+      if(res?.data?.user?.role == "admin"){
+        localStorage.setItem("token", res?.data?.token);
+        localStorage.setItem("user", JSON.stringify(res?.data?.user));
+        window.dispatchEvent(new Event("storage"));
+        navigate("/");
 
-       
+      }
+      // console.log(res?.data?.token, "resp")
+
     } catch (error) {
       toast.error(error?.response?.data?.message);
       console.log(error?.response?.data?.message, "set");
@@ -46,7 +52,6 @@ export default function Login() {
     >
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-center mb-6">Admin Login</h1>
-
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -77,7 +82,7 @@ export default function Login() {
             className="w-full py-2 px-4 rounded-lg font-medium text-white shadow-md"
             style={{ background: "linear-gradient(to right,#9f7119,#f3e39c)" }}
           >
-            { loading ? "Loading" : "Login" }
+            {loading ? "Loading" : "Login"}
           </button>
         </form>
 
