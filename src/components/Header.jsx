@@ -16,7 +16,7 @@ export default function Header() {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
-      
+
       window.dispatchEvent(new Event("storage"));
 
       navigate("/login", { replace: true });
@@ -27,7 +27,18 @@ export default function Header() {
     }
   }
 
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const data = localStorage.getItem("user");
+      if (data) {
+        setLoggedInUser(JSON.parse(data));
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -50,20 +61,19 @@ export default function Header() {
 
         {/* Profile Image */}
         <img
-          src="https://i.pravatar.cc/40"
+          src={`${loggedInUser?.image ? loggedInUser?.image : "/detault-avator.png"}`}
           alt="Admin"
-          className="rounded-full cursor-pointer border-2 border-gray-300"
+          className="w-10 h-10 rounded-full cursor-pointer border-2 border-gray-300"
           onClick={() => setOpen(!open)}
         />
 
         {/* Dropdown Menu */}
         {open && (
-          <div className="absolute right-0 top-12 w-40 bg-white shadow-lg rounded-lg border py-2">
+          <div className="absolute right-0 top-12 w-40 bg-white shadow-lg rounded-lg border z-10 py-2">
             <Link to="/profile" className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Profile
             </Link >
             <button
-
               onClick={logoutHandler}
               className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Logout

@@ -38,24 +38,52 @@ export default function Users() {
     const start = (page - 1) * perPage;
     const visible = filtered.slice(start, start + perPage);
 
-    const updateStatus = (id, status) => {
-        setUsers((prev) => prev.map((u) => (u._id === id ? { ...u, status } : u)));
-    };
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const fetchOtherUsers = async () => {
         try {
             axios.defaults.withCredentials = true;
             const res = await axios.get(`${baseUrl}/api/v1/user/`);
 
-            // console.log(res.data, "Users")
             setUsers(res?.data)
         } catch (error) {
             console.log(error);
         }
     }
+    const [statusFilter, setStatusFilter] = useState("all");
+    const updateStatus = async (id, value) => {
+        try {
+            const status = value === "true"; // dropdown se string aayegi → bool convert
+
+            await axios.patch(`${baseUrl}/api/v1/user/status`, {
+                id,
+                status,
+            });
+
+            fetchUsers(statusFilter);
+        } catch (error) {
+            console.log("Error updating status:", error);
+        }
+    };
+    // useEffect(() => {
+    //     fetchOtherUsers()
+    // }, []);
+    // Status filter ke liye state
+
+    // fetch users by status
+    const fetchUsers = async (status = "all") => {
+        try {
+            axios.defaults.withCredentials = true;
+            const res = await axios.get(`${baseUrl}/api/v1/user/getUserBystatus?status=${status}`);
+            setUsers(res?.data);
+        } catch (error) {
+            console.log("Error fetching users:", error);
+        }
+    };
+
+    // initial load
     useEffect(() => {
-       fetchOtherUsers()
-    }, []);
+        fetchUsers(statusFilter);
+    }, [statusFilter]);
 
     return (
         <div className="p-6">
@@ -108,21 +136,16 @@ export default function Users() {
                 <div className="flex items-center gap-3">
                     <label className="text-sm">Status:</label>
                     <select
+                        value={statusFilter}
                         onChange={(e) => {
-                            const v = e.target.value;
-                            if (v === "All") {
-                                setUsers(dummyUsers);
-                            } else {
-                                // UI filter only — in real app fetch server-side
-                                setUsers(dummyUsers.filter((u) => (v === "Active" ? u.status === "Active" : u.status === "Inactive")));
-                            }
+                            setStatusFilter(e.target.value.toLowerCase()); // "Active" → "active"
                             setPage(1);
                         }}
                         className="border rounded px-3 py-2"
                     >
-                        <option>All</option>
-                        <option>Active</option>
-                        <option>Inactive</option>
+                        <option value="all">All</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                     </select>
                 </div>
             </div>
@@ -169,11 +192,11 @@ export default function Users() {
                                             <select
                                                 value={u.status}
                                                 onChange={(e) => updateStatus(u._id, e.target.value)}
-                                                className={`px-2 py-1 rounded border text-sm ${u.status === "Active" ? "text-red-700 bg-red-50" : "text-green-700 bg-green-50"
+                                                className={`px-2 py-1 rounded border text-sm ${u.status === false ? "text-red-700 bg-red-50" : "text-green-700 bg-green-50"
                                                     }`}
                                             >
-                                                <option>Active</option>
-                                                <option>Inactive</option>
+                                                <option value={true}>Active</option>
+                                                <option value={false}>Inactive</option>
                                             </select>
                                         </td>
                                         <td className="px-4 py-3 text-right">
