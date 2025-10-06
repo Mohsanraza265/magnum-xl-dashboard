@@ -32,7 +32,6 @@ export default function Login() {
         localStorage.setItem("user", JSON.stringify(res?.data?.user));
         window.dispatchEvent(new Event("storage"));
         navigate("/");
-
       }
       // console.log(res?.data?.token, "resp")
 

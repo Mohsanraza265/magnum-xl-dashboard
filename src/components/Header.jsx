@@ -28,14 +28,25 @@ export default function Header() {
   }
 
   const [loggedInUser, setLoggedInUser] = useState(null);
+ 
+   useEffect(() => {
+    // 1. Initial load pe user ko localStorage se set karo
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setLoggedInUser(JSON.parse(storedUser));
+    }
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const data = localStorage.getItem("user");
-      if (data) {
-        setLoggedInUser(JSON.parse(data));
+    // 2. Dusri tab se update ka listener
+    const handleStorageChange = (event) => {
+      if (event.key === "user") {
+        if (event.newValue) {
+          setLoggedInUser(JSON.parse(event.newValue));
+        } else {
+          setLoggedInUser(null);
+        }
       }
     };
+
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
@@ -70,7 +81,7 @@ export default function Header() {
         {/* Dropdown Menu */}
         {open && (
           <div className="absolute right-0 top-12 w-40 bg-white shadow-lg rounded-lg border z-10 py-2">
-            <Link to="/profile" className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+            <Link to={`/profile/${loggedInUser._id}`} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Profile
             </Link >
             <button

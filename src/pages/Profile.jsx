@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 export default function Profile() {
     const { id } = useParams();
+    // console.log(id, "id params")
     const [user, setUser] = useState(null);
     const [Loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -26,20 +27,49 @@ export default function Profile() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const [loggedInUser, setLoggedInUser] = useState(null);
 
+    const [dateOfBirth, setDateOfBirth] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+
+    // useEffect(() => {
+    //     const handleStorageChange = () => {
+    //         const data = localStorage.getItem("user");
+    //         if (data) {
+    //             setLoggedInUser(JSON.parse(data));
+    //         }
+    //     };
+    //     window.addEventListener("storage", handleStorageChange);
+    //     return () => window.removeEventListener("storage", handleStorageChange);
+    // }, []);
+
+    const fetchUserData = async (id) => {
+        try {
+            const response = await axios.get(
+                `${baseUrl}/api/v1/user/get-user/${id}`
+            );
+            setLoggedInUser(response?.data?.user);
+            setDateOfBirth(
+                dayjs(response?.data?.user?.dateOfBirth).format("MMMM D, YYYY")
+            );
+            setStartDate(
+                dayjs(response?.data?.user?.subscription?.startDate).format("MMMM D, YYYY")
+            );
+            setEndDate(
+                dayjs(response?.data?.user?.subscription?.endDate).format("MMMM D, YYYY")
+            );
+            //   console.log("response fetching user data:", response);
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
+    };
+
     useEffect(() => {
-        const handleStorageChange = () => {
-            const data = localStorage.getItem("user");
-            if (data) {
-                setLoggedInUser(JSON.parse(data));
-            }
-        };
-        window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
-    }, []);
-
+        if (id) {
+            fetchUserData(id);
+        }
+    }, [id]);
 
     useEffect(() => {
-
         fetch(`/api/users/${id}`)
             .then((res) => res.json())
             .then((data) => setUser(data))
@@ -86,7 +116,8 @@ export default function Profile() {
                 withCredentials: true
             });
             toast.success(res.data.message);
-            //  console.log(res)
+            fetchUserData(id);
+            console.log(res, "res edit profile")
             localStorage.setItem("user", JSON.stringify(res?.data?.user));
             setOpen(!open)
         } catch (error) {

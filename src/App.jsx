@@ -11,9 +11,11 @@ import UserDetails from "./pages/UserDetails";
 import Profile from "./pages/Profile";
 import EditPackage from "./pages/EditPackage";
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
-  
+
   const [token, setToken] = useState(localStorage.getItem("token"));
 
   // Jab bhi localStorage change ho, state update kar do
@@ -24,7 +26,7 @@ export default function App() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-  
+
   const ProtectedRoute = ({ children }) => {
     if (!token) {
       return <Navigate to="/login" replace />;
@@ -65,14 +67,26 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="users/:id" element={<UserDetails />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="matches" element={<Matches />} />
+          <Route path="profile/:id" element={<Profile />} />
+          <Route path="feedback" element={<Matches />} />
           <Route path="manage-subscription" element={<ManageSubscription />} />
           <Route path="create-package" element={<CreatePackage />} />
           <Route path="edit-package" element={<EditPackage />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Router>
   );
 }

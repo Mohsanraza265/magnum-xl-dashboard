@@ -37,7 +37,7 @@ export default function Sidebar() {
                 </NavLink>
 
                 <NavLink
-                    to="/matches"
+                    to="/feedback"
                     className={({ isActive }) =>
                         `block px-3 py-2 rounded ${isActive ? "bg-gradient-to-r from-[rgb(159,113,25)] to-[rgb(243,227,156)] text-white" : "hover:text-gray-300"
                         }`
@@ -46,7 +46,7 @@ export default function Sidebar() {
                     feedback
                 </NavLink>
 
-                <NavLink
+                {/* <NavLink
                     to="/profile"
                     className={({ isActive }) =>
                         `block px-3 py-2 rounded ${isActive ? "bg-gradient-to-r from-[rgb(159,113,25)] to-[rgb(243,227,156)] text-white" : "hover:text-gray-300"
@@ -54,7 +54,7 @@ export default function Sidebar() {
                     }
                 >
                     Profile
-                </NavLink>
+                </NavLink> */}
             </nav>
         </aside>
     );

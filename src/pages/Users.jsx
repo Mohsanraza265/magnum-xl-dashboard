@@ -3,29 +3,12 @@ import { useEffect, useState } from "react";
 import { FiEye, FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
-/**
- * Users.jsx
- * Modern Users UI with gradient header, search, records-per-page, status toggle, pagination.
- * Replace dummyUsers with your API data and wire actions (status change, view) to backend calls.
- */
-
-const dummyUsers = [
-    { id: "a101", name: "Amina Khan", email: "amina@example.com", date: "2025-01-01", status: "Active" },
-    { id: "a2121", name: "Owais Ali", email: "owais@example.com", date: "2025-01-02", status: "Active" },
-    { id: "fad21", name: "Sana Ahmed", email: "sana@example.com", date: "2025-01-03", status: "Inactive" },
-    { id: "as123", name: "Imran Raza", email: "imran@example.com", date: "2025-01-04", status: "Active" },
-    { id: "zx999", name: "Rana Farooq", email: "rana@example.com", date: "2025-01-05", status: "Inactive" },
-    { id: "uu321", name: "Hassan Ali", email: "hassan@example.com", date: "2025-01-06", status: "Active" },
-    { id: "bb555", name: "Zara Noor", email: "zara@example.com", date: "2025-01-07", status: "Active" },
-];
-
 export default function Users() {
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(5);
 
-    // Filter
     const filtered = users.filter(
         (u) =>
             u.first_name.toLowerCase().includes(search.toLowerCase()) ||
